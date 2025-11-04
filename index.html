@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Philippine Financial Forecaster</title>
+    <style>
+      :root {
+        --primary-color: #0052cc;
+        --secondary-color: #00b8d9;
+        --background-color: #f4f5f7;
+        --card-background-color: #ffffff;
+        --text-color: #172b4d;
+        --subtle-text-color: #5e6c84;
+        --border-color: #dfe1e6;
+        --success-color: #00875a;
+        --danger-color: #de350b;
+        --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+          'Helvetica Neue', Arial, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-family);
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        padding: 1.5rem;
+      }
+
+      #root {
+        max-width: 900px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      @media (min-width: 768px) {
+        #root {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-areas:
+                "header header"
+                "input summary"
+                "budget budget"
+                "emergency emergency"
+                "spending spending";
+        }
+        .main-header { grid-area: header; }
+        .card-input { grid-area: input; }
+        .card-summary { grid-area: summary; }
+        .card-budget { grid-area: budget; }
+        .card-emergency { grid-area: emergency; }
+        .card-spending { grid-area: spending; }
+      }
+
+      .main-header {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .main-header h1 {
+        color: var(--primary-color);
+        font-size: 2rem;
+        font-weight: 600;
+      }
+      
+      .main-header p {
+        color: var(--subtle-text-color);
+        font-size: 1rem;
+      }
+
+      .mode-selector {
+        margin-top: 1.5rem;
+        display: inline-flex;
+        background-color: #e9ecef;
+        border-radius: 8px;
+        padding: 4px;
+      }
+
+      .mode-selector button {
+        padding: 0.5rem 1rem;
+        border: none;
+        background-color: transparent;
+        color: var(--subtle-text-color);
+        font-weight: 600;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+      }
+
+      .mode-selector button.active {
+        background-color: var(--card-background-color);
+        color: var(--primary-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      }
+
+      .card {
+        background-color: var(--card-background-color);
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .card-header {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: -0.5rem;
+      }
+      
+      .card-input.couple-mode .input-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      
+      @media (min-width: 600px) {
+        .card-input.couple-mode .input-container {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      .person-input-section h3 {
+        font-size: 1.1rem;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+      }
+      
+      .person-input-section {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .form-group label {
+        font-weight: 500;
+        color: var(--subtle-text-color);
+        font-size: 0.9rem;
+      }
+      
+      .input-group {
+        display: flex;
+        align-items: center;
+      }
+
+      .input-group input {
+        flex-grow: 1;
+        border-right: none;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+      
+      .input-group select {
+        width: auto;
+        flex-shrink: 0;
+        border-left: none;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        background-color: var(--card-background-color);
+        color: var(--text-color);
+      }
+
+      input[type='number'],
+      input[type='text'],
+      select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background-color: white;
+        color: var(--text-color);
+      }
+      
+      input[type='number']:focus,
+      input[type='text']:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0, 82, 204, 0.2);
+      }
+
+      .toggle-group {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .toggle-group label {
+        font-size: 1rem;
+      }
+
+      .night-diff-inputs {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      .night-diff-inputs .form-group {
+        flex: 1;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 28px;
+      }
+
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.4s;
+        border-radius: 28px;
+      }
+
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+
+      input:checked + .slider {
+        background-color: var(--primary-color);
+      }
+
+      input:checked + .slider:before {
+        transform: translateX(22px);
+      }
+      
+      .summary-grid {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.75rem 1.5rem;
+        align-items: center;
+      }
+      
+      .summary-grid.couple-summary .summary-label {
+        font-weight: 600;
+      }
+       .summary-grid.couple-summary .summary-value {
+        font-size: 1.2rem;
+      }
+
+      .summary-label {
+        color: var(--subtle-text-color);
+        font-weight: 500;
+      }
+      
+      .summary-value {
+        font-weight: 600;
+        text-align: right;
+      }
+      
+      .deduction {
+        padding-left: 1rem;
+        font-size: 0.9rem;
+      }
+      
+      .total-row {
+        font-weight: bold;
+        border-top: 1px solid var(--border-color);
+        padding-top: 0.75rem;
+        margin-top: 0.5rem;
+      }
+
+      .net-income {
+        background-color: var(--success-color);
+        color: white;
+        padding: 1rem;
+        border-radius: 6px;
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .net-income .summary-label {
+         color: rgba(255, 255, 255, 0.85);
+         font-size: 0.9rem;
+         display: block;
+      }
+       .net-income .summary-value {
+         color: white;
+         font-size: 1.75rem;
+         font-weight: 700;
+      }
+
+      .budget-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        text-align: center;
+      }
+      
+      .budget-item {
+        background-color: #f9fafb;
+        padding: 1rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+      }
+      
+      .budget-item h3 {
+        font-size: 1.1rem;
+        color: var(--text-color);
+      }
+      
+      .budget-item p {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+      }
+      
+      .budget-item small {
+        font-size: 0.8rem;
+        color: var(--subtle-text-color);
+      }
+      
+      .emergency-fund-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .emergency-fund-description {
+        text-align: center;
+        color: var(--subtle-text-color);
+        font-style: italic;
+      }
+
+      .emergency-fund-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .emergency-fund-item {
+        background-color: #f9fafb;
+        padding: 1.5rem 1rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+      }
+
+      .emergency-fund-item h3 {
+        font-size: 1.1rem;
+        color: var(--text-color);
+      }
+
+      .emergency-fund-item p {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin: 0.5rem 0;
+      }
+
+      .emergency-fund-item small {
+        font-size: 0.8rem;
+        color: var(--subtle-text-color);
+      }
+      
+      .expense-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .expense-item {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .expense-item select {
+        grid-column: 1 / -1;
+      }
+      @media (min-width: 600px) {
+        .expense-item {
+            grid-template-columns: 2fr 1fr 1fr auto;
+        }
+        .expense-item select {
+            grid-column: auto;
+        }
+      }
+
+      .expense-item input, .expense-item select {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      button {
+        padding: 0.75rem 1rem;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background-color 0.2s, transform 0.1s;
+      }
+      
+      button:active {
+          transform: scale(0.98);
+      }
+      
+      .btn-add {
+        background-color: var(--primary-color);
+        color: white;
+      }
+      
+      .btn-add:hover {
+        background-color: #005fcc;
+      }
+      
+      .btn-remove {
+        background-color: #ffebe6;
+        color: var(--danger-color);
+        padding: 0.5rem;
+        line-height: 1;
+        font-size: 1.2rem;
+      }
+      
+      .btn-remove:hover {
+        background-color: #ffcdd2;
+      }
+      
+      .spending-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+      
+      .couple-final-summary {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      @media (min-width: 600px) {
+        .couple-final-summary {
+          grid-template-columns: 1fr 1fr;
+        }
+        .couple-final-summary .total-row {
+          grid-column: 1 / -1;
+        }
+      }
+      
+      .couple-final-summary .summary-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+      }
+
+      .couple-final-summary .summary-item small {
+        grid-column: 1 / -1;
+        color: var(--subtle-text-color);
+        font-size: 0.8rem;
+        text-align: right;
+      }
+      
+      .couple-final-summary .summary-label {
+        font-weight: 600;
+      }
+      
+      .couple-final-summary .summary-value {
+        font-weight: 600;
+        font-size: 1.1rem;
+      }
+      
+      .couple-final-summary .final-balance .summary-value {
+        font-size: 1.25rem;
+      }
+
+      .remaining-positive {
+        color: var(--success-color);
+      }
+
+      .remaining-negative {
+        color: var(--danger-color);
+      }
+
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
